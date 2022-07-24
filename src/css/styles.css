@@ -1,0 +1,40 @@
+#root {
+  display: flex;
+  height: 100vh;
+}
+
+button {
+  height: fit-content;
+  background-color: brown;
+}
+.div--left {
+  background-color: antiquewhite;
+  width: 40%;
+}
+
+.div--right {
+  background-color: aquamarine;
+  width: 60%;
+}
+
+.title--left {
+  font-size: 15px;
+}
+
+.books-list {
+  padding: 20px;
+}
+
+.list__item {
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  margin-bottom: 10px;
+}
+.list__title {
+  margin-right: auto;
+}
+
+.button--edit {
+  margin-right: 5px;
+}
