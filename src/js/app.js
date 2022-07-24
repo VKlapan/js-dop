@@ -48,7 +48,7 @@ btnAddBookEl.textContent = "ADD";
 
 leftDivEl.append(listBooksEl, btnAddBookEl);
 
-const onClick = (event) => {
+const showPreviewOnClick = (event) => {
   if (event.target.nodeName != "P") {
     return;
   }
@@ -59,7 +59,7 @@ const onClick = (event) => {
   rightDivEl.innerHTML = "";
   rightDivEl.insertAdjacentHTML(
     "afterbegin",
-    renderBookViewMarkup(currentOblect)
+    renderBookPreviewMarkup(currentOblect)
   );
 };
 
@@ -71,17 +71,23 @@ const bookDeleteOnClick = () => {
   console.log("DELETE");
 };
 
+const addBookOnClick = () => {
+  console.log("ADD");
+};
+
+btnAddBookEl.addEventListener("click", addBookOnClick);
+
 const renderBooksListMarkup = () => {
   const itemsBooksEl = books
-    .map(({ title }) => {
-      return `<li class="list__item"><p class="list__title">${title}</p><button class="button--edit" type="button">EDIT</button><button class="button--delete" type="button">DELETE</button></li>`;
+    .map(({ title, id }) => {
+      return `<li id=${id} class="list__item"><p class="list__title">${title}</p><button class="button--edit" type="button">EDIT</button><button class="button--delete" type="button">DELETE</button></li>`;
     })
     .join("");
 
   listBooksEl.insertAdjacentHTML("afterbegin", itemsBooksEl);
 
   const bookNameEl = document.querySelectorAll(".list__title");
-  bookNameEl.forEach(() => addEventListener("click", onClick));
+  bookNameEl.forEach(() => addEventListener("click", showPreviewOnClick));
 
   const btnBookEditEl = document.querySelectorAll(".button--edit");
   btnBookEditEl.forEach((item) =>
@@ -94,12 +100,14 @@ const renderBooksListMarkup = () => {
   );
 };
 
-const renderBookViewMarkup = ({ title, author, img, plot }) => {
+const renderBookPreviewMarkup = ({ id, title, author, img, plot }) => {
   const itemBookEl = `
+  <div data-previewid='${id}'>
     <h2>${title}</h2>
     <p>${author}</p>
     <img src="${img}" alt="">
     <p>${plot}</p>
+  </div>
       `;
 
   return itemBookEl;
