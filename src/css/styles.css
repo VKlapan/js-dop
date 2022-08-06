@@ -38,3 +38,12 @@ button {
 .button--edit {
   margin-right: 5px;
 }
+
+.form-add-edit-book {
+  display: flex;
+  flex-direction: column;
+}
+
+.form__label {
+  margin-bottom: 10px;
+}

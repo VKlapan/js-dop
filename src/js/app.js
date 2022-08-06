@@ -1,31 +1,7 @@
-const books = [
-  {
-    id: "1",
-    title: `Apple. Эволюция компьютера`,
-    author: `Владимир Невзоров`,
-    img: `https://bukva.ua/img/products/449/449532_200.jpg`,
-    plot: `Богато иллюстрированный хронологический справочник по истории компьютеров, в котором увлекательно и в структурированном виде изложена информация о создании и развитии техники Apple на фоне истории персональных компьютеров в целом. В книге даны описания десятков наиболее значимых моделей устройств как Apple, так и других производителей, сопровождающиеся большим количеством оригинальных студийных фотографий. Книга предназначена для широкого круга читателей, интересующихся историей электроники. Она также может послужить источником вдохновения для дизайнеров, маркетологов и предпринимателей.`,
-  },
-
-  {
-    id: "2",
-    title: `Как объяснить ребенку информатику`,
-    author: `Кэрол Вордерман`,
-    img: `https://bukva.ua/img/products/480/480030_200.jpg`,
-    plot: `Иллюстрированная энциклопедия в формате инфографики о технических, социальных и культурных аспектах в информатике. Пошагово объясняет, как детям максимально эффективно использовать компьютеры и интернет-сервисы, оставаясь в безопасности. Книга рассказывает обо всем: от хранения данных до жизни в интернет-пространстве, от программирования до компьютерных атак. О том, как компьютеры функционируют, о современном программном обеспечении, устройстве Интернета и цифровом этикете. Все концепты - от хакера до биткоина - объясняются наглядно с помощью иллюстраций и схем.`,
-  },
-
-  {
-    id: "3",
-    title: `Путь скрам-мастера. #ScrumMasterWay`,
-    author: `Зузана Шохова`,
-    img: `https://bukva.ua/img/products/480/480090_200.jpg`,
-    plot: `Эта книга поможет вам стать выдающимся скрам-мастером и добиться отличных результатов с вашей командой. Она иллюстрированная и легкая для восприятия - вы сможете прочитать ее за выходные, а пользоваться полученными знаниями будете в течение всей карьеры. Основываясь на 15-летнем опыте, Зузана Шохова рассказывает, какие роли и обязанности есть у скрам-мастера, как ему решать повседневные задачи, какие компетенции нужны, чтобы стать выдающимся скрам-мастером, какими инструментами ему нужно пользоваться.`,
-  },
-];
+import { booksDB } from "./books.js";
+import { Book } from "./Book.js";
 
 const rootEl = document.querySelector("#root");
-
 const leftDivEl = document.createElement("div");
 const rightDivEl = document.createElement("div");
 
@@ -48,23 +24,79 @@ btnAddBookEl.textContent = "ADD";
 
 leftDivEl.append(listBooksEl, btnAddBookEl);
 
+if (JSON.parse(localStorage.getItem("books")) === null) {
+  localStorage.setItem("books", JSON.stringify(booksDB));
+}
+
+let booksArr = [];
+
+const getBooks = () => {
+  booksArr = JSON.parse(localStorage.getItem("books"));
+};
+
+const postRightBlock = (markup) => {
+  rightDivEl.innerHTML = "";
+  rightDivEl.insertAdjacentHTML("afterbegin", markup);
+  console.log("posr right block");
+};
+
 const showPreviewOnClick = (event) => {
   if (event.target.nodeName != "P") {
     return;
   }
 
-  const currentOblect = books.find(
-    (book) => book.title === event.target.textContent
+  const currentObject = booksArr.find(
+    (book) => book.id === event.target.parentNode.id
   );
-  rightDivEl.innerHTML = "";
-  rightDivEl.insertAdjacentHTML(
-    "afterbegin",
-    renderBookPreviewMarkup(currentOblect)
-  );
+
+  const markup = renderBookPreviewMarkup(currentObject);
+
+  postRightBlock(markup);
 };
 
-const bookEditOnClick = () => {
+const saveBook = () => {
+  console.log(booksArr);
+  const id = document.querySelector(".form-add-edit-book").dataset.bookid;
+  const title = document.querySelector("input[name=title]").value;
+  const author = document.querySelector("input[name=author]").value;
+  const img = document.querySelector("input[name=img]").value;
+  const plot = document.querySelector("input[name=plot]").value;
+
+  if (id != null) {
+    booksArr[id].title = title;
+    booksArr[id].author = author;
+    booksArr[id].img = img;
+    booksArr[id].plot = plot;
+  } else {
+    const newBook = new Book(title, author, img, plot);
+    booksArr.push(bookObj);
+  }
+
+  console.log(booksArr);
+};
+
+const bookEditOnClick = (event) => {
+  const markup = renderFormAddEditBook();
+  console.log(markup);
+  postRightBlock(markup);
+
+  console.log(event.target.parentNode.id);
+
+  const currentObject = booksArr.find(
+    (book) => book.id === event.target.parentNode.id
+  );
+  document.querySelector(".form-add-edit-book").dataset.bookid =
+    currentObject.id;
+  document.querySelector("input[name=title]").value = currentObject.title;
+  document.querySelector("input[name=author]").value = currentObject.author;
+  document.querySelector("input[name=img]").value = currentObject.img;
+  document.querySelector("input[name=plot]").value = currentObject.plot;
+
+  const btnSubmitEl = document.querySelector(".button--save");
+  console.log(btnSubmitEl);
   console.log("EDIT");
+
+  btnSubmitEl.addEventListener("click", saveBook);
 };
 
 const bookDeleteOnClick = () => {
@@ -72,13 +104,19 @@ const bookDeleteOnClick = () => {
 };
 
 const addBookOnClick = () => {
-  console.log("ADD");
+  const markup = renderFormAddEditBook();
+  postRightBlock(markup);
+
+  const btnSubmitEl = document.querySelector(".button--save");
+  btnSubmitEl.addEventListener("click", saveBook);
 };
 
 btnAddBookEl.addEventListener("click", addBookOnClick);
 
 const renderBooksListMarkup = () => {
-  const itemsBooksEl = books
+  getBooks();
+
+  const itemsBooksEl = booksArr
     .map(({ title, id }) => {
       return `<li id=${id} class="list__item"><p class="list__title">${title}</p><button class="button--edit" type="button">EDIT</button><button class="button--delete" type="button">DELETE</button></li>`;
     })
@@ -113,4 +151,31 @@ const renderBookPreviewMarkup = ({ id, title, author, img, plot }) => {
   return itemBookEl;
 };
 
+const renderFormAddEditBook = () => {
+  const formMarkup = `
+<form class='form-add-edit-book' data-bookid = ' '>
+  <label class='form__label'> Title
+  <input type='text' name='title' /> 
+  </label>
+  <label class='form__label'> Author
+  <input type='text' name='author' /> 
+  </label>
+  <label class='form__label'> Image
+  <input type='text' name='img' /> 
+  </label>
+  <label class='form__label'> Plot
+  <input type='text' name='plot' /> 
+  </label>
+  <button type='button' class='button--save'>Save</button>
+  </form>      `;
+
+  return formMarkup;
+};
+
 renderBooksListMarkup();
+
+// const newBook = new Book("TITEL", "AUTOR", "SRC", "PLOT");
+
+// saveBook(newBook);
+
+// console.log(booksArr);
