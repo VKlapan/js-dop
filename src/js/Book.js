@@ -1,15 +1,9 @@
 export class Book {
-  #id;
-
-  constructor(title, autor, img, plot) {
-    this.#id = Date.now();
+  constructor(title, author, img, plot) {
+    this.id = Date.now().toString();
     this.title = title;
-    this.autor = autor;
+    this.author = author;
     this.img = img;
     this.plot = plot;
-  }
-
-  get id() {
-    return this.#id;
   }
 }

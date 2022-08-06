@@ -55,24 +55,35 @@ const showPreviewOnClick = (event) => {
 };
 
 const saveBook = () => {
-  console.log(booksArr);
   const id = document.querySelector(".form-add-edit-book").dataset.bookid;
   const title = document.querySelector("input[name=title]").value;
   const author = document.querySelector("input[name=author]").value;
   const img = document.querySelector("input[name=img]").value;
   const plot = document.querySelector("input[name=plot]").value;
+  console.log("id", id);
 
-  if (id != null) {
+  if (id != " ") {
     booksArr[id].title = title;
     booksArr[id].author = author;
     booksArr[id].img = img;
     booksArr[id].plot = plot;
+
+    const markup = renderBookPreviewMarkup(booksArr[id]);
+    postRightBlock(markup);
   } else {
     const newBook = new Book(title, author, img, plot);
-    booksArr.push(bookObj);
+    console.log(newBook);
+
+    booksArr.push(newBook);
+
+    const markup = renderBookPreviewMarkup(newBook);
+
+    postRightBlock(markup);
   }
 
-  console.log(booksArr);
+  localStorage.setItem("books", JSON.stringify(booksArr));
+
+  renderBooksListMarkup();
 };
 
 const bookEditOnClick = (event) => {
@@ -86,7 +97,7 @@ const bookEditOnClick = (event) => {
     (book) => book.id === event.target.parentNode.id
   );
   document.querySelector(".form-add-edit-book").dataset.bookid =
-    currentObject.id;
+    booksArr.indexOf(currentObject);
   document.querySelector("input[name=title]").value = currentObject.title;
   document.querySelector("input[name=author]").value = currentObject.author;
   document.querySelector("input[name=img]").value = currentObject.img;
@@ -99,7 +110,22 @@ const bookEditOnClick = (event) => {
   btnSubmitEl.addEventListener("click", saveBook);
 };
 
-const bookDeleteOnClick = () => {
+const bookDeleteOnClick = (event) => {
+  const booksArrAfterDelete = booksArr.filter(
+    (book) => book.id != event.target.parentNode.id
+  );
+  localStorage.setItem("books", JSON.stringify(booksArrAfterDelete));
+
+  if (document.querySelector("[data-previewid]") != null) {
+    const previewId =
+      document.querySelector("[data-previewid]").dataset.previewid;
+    if (event.target.parentNode.id === previewId) {
+      rightDivEl.innerHTML = "";
+    }
+  }
+
+  renderBooksListMarkup();
+
   console.log("DELETE");
 };
 
@@ -116,12 +142,15 @@ btnAddBookEl.addEventListener("click", addBookOnClick);
 const renderBooksListMarkup = () => {
   getBooks();
 
+  console.log(booksArr);
+
   const itemsBooksEl = booksArr
     .map(({ title, id }) => {
       return `<li id=${id} class="list__item"><p class="list__title">${title}</p><button class="button--edit" type="button">EDIT</button><button class="button--delete" type="button">DELETE</button></li>`;
     })
     .join("");
 
+  listBooksEl.innerHTML = "";
   listBooksEl.insertAdjacentHTML("afterbegin", itemsBooksEl);
 
   const bookNameEl = document.querySelectorAll(".list__title");
@@ -173,9 +202,3 @@ const renderFormAddEditBook = () => {
 };
 
 renderBooksListMarkup();
-
-// const newBook = new Book("TITEL", "AUTOR", "SRC", "PLOT");
-
-// saveBook(newBook);
-
-// console.log(booksArr);
